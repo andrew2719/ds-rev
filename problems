@@ -536,3 +536,29 @@ int main()
 }
 
 // improved by Vishnudev C
+--------------------------------------------
+// zig zag
+class Solution {
+public:
+    int maxi=0;
+    
+    void zigZag(TreeNode*root,int l,int r){
+        
+        if(!root) return;
+        
+        maxi=max(maxi,l);
+        maxi=max(maxi,r);
+        
+        zigZag(root->left,0,l+1);
+        zigZag(root->right,r+1,0);
+        
+    }
+    int longestZigZag(TreeNode* root) {
+        
+        int l=0;
+        int r=0;
+        
+        zigZag(root,l,r);
+        return maxi;
+    }
+};
