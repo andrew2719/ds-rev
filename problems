@@ -1,0 +1,538 @@
+// deletion in tree
+Node* mini(Node* root)
+{
+    Node* curr = root;
+    while(curr && curr!=NULL)
+    curr= curr->left;
+    return curr;
+}
+
+Node* delete_node(Node* root, int val)
+{
+    if(root==NULL)
+    return root;
+    else if(val<root->data)
+    root->left = delete_node(root->left,val);
+    else if(val>root->data)
+    root->right = delete_node(root->right,val);
+    else{
+        if(root->left==NULL && root->right==NULL)
+        {
+            return NULL;
+        }
+        else if(root->right==NULL)
+        {
+            Node* temp = root->left;
+            free(root);
+            return temp;
+        }
+        else if(root->left==NULL)
+        {
+            Node* temp = root->right;
+            free(root);
+            return temp;
+        }
+        Node* temp = mini(root->right);
+        root->data = temp->data;
+        root->right = delete_node(root->right,temp->data);
+    }
+}
+
+--------------------------------------------------------------------------------
+// infix to post fix
+void infixToPostfix(string s)
+{
+
+	stack<char> st; // For stack operations, we are using
+					// C++ built in stack
+	string result;
+
+	for (int i = 0; i < s.length(); i++) {
+		char c = s[i];
+
+		// If the scanned character is
+		// an operand, add it to output string.
+		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+			|| (c >= '0' && c <= '9'))
+			result += c;
+
+		// If the scanned character is an
+		// ‘(‘, push it to the stack.
+		else if (c == '(')
+			st.push('(');
+
+		// If the scanned character is an ‘)’,
+		// pop and to output string from the stack
+		// until an ‘(‘ is encountered.
+		else if (c == ')') {
+			while (st.top() != '(') {
+				result += st.top();
+				st.pop();
+			}
+			st.pop();
+		}
+
+		// If an operator is scanned
+		else {
+			while (!st.empty() && prec(s[i]) <= prec(st.top())) {
+				result += st.top();
+				st.pop();
+			}
+			st.push(c);
+		}
+	}
+
+	// Pop all the remaining elements from the stack
+	while (!st.empty()) {
+		result += st.top();
+		st.pop();
+	}
+
+	cout << result << endl;
+}
+--------------------------------------------------------------------------------
+
+// post to in
+// CPP program to find infix for
+// a given postfix.
+#include <bits/stdc++.h>
+using namespace std;
+
+bool isOperand(char x)
+{
+return (x >= 'a' && x <= 'z') ||
+		(x >= 'A' && x <= 'Z');
+}
+
+// Get Infix for a given postfix
+// expression
+string getInfix(string exp)
+{
+	stack<string> s;
+
+	for (int i=0; exp[i]!='\0'; i++)
+	{
+		// Push operands
+		if (isOperand(exp[i]))
+		{
+		string op(1, exp[i]);
+		s.push(op);
+		}
+
+		// We assume that input is
+		// a valid postfix and expect
+		// an operator.
+		else
+		{
+			string op1 = s.top();
+			s.pop();
+			string op2 = s.top();
+			s.pop();
+			s.push("(" + op2 + exp[i] +
+				op1 + ")");
+		}
+	}
+
+	// There must be a single element
+	// in stack now which is the required
+	// infix.
+	return s.top();
+}
+
+// Driver code
+int main()
+{
+	string exp = "ab*c+";
+	cout << getInfix(exp);
+	return 0;
+}
+--------------------------------------------------------------------------------
+
+
+// infix to prefix
+string infixToPostfix(string infix)
+{
+	infix = '(' + infix + ')';
+	int l = infix.size();
+	stack<char> char_stack;
+	string output;
+
+	for (int i = 0; i < l; i++) {
+
+		// If the scanned character is an
+		// operand, add it to output.
+		if (isalpha(infix[i]) || isdigit(infix[i]))
+			output += infix[i];
+
+		// If the scanned character is an
+		// ‘(‘, push it to the stack.
+		else if (infix[i] == '(')
+			char_stack.push('(');
+
+		// If the scanned character is an
+		// ‘)’, pop and output from the stack
+		// until an ‘(‘ is encountered.
+		else if (infix[i] == ')') {
+			while (char_stack.top() != '(') {
+				output += char_stack.top();
+				char_stack.pop();
+			}
+
+			// Remove '(' from the stack
+			char_stack.pop();
+		}
+
+		// Operator found
+		else
+		{
+			if (isOperator(char_stack.top()))
+			{
+				if(infix[i] == '^')
+				{
+					while (getPriority(infix[i]) <= getPriority(char_stack.top()))
+					{
+						output += char_stack.top();
+						char_stack.pop();
+					}
+					
+				}
+				else
+				{
+					while (getPriority(infix[i]) < getPriority(char_stack.top()))
+					{
+						output += char_stack.top();
+						char_stack.pop();
+					}
+					
+				}
+
+				// Push current Operator on stack
+				char_stack.push(infix[i]);
+			}
+		}
+	}
+	while(!char_stack.empty()){
+		output += char_stack.top();
+		char_stack.pop();
+	}
+	return output;
+}
+
+--------------------------------------------------------------------------------
+
+// pre to in
+// C++ Program to convert prefix to Infix
+#include <iostream>
+#include <stack>
+using namespace std;
+
+// function to check if character is operator or not
+bool isOperator(char x) {
+switch (x) {
+case '+':
+case '-':
+case '/':
+case '*':
+case '^':
+case '%':
+	return true;
+}
+return false;
+}
+
+// Convert prefix to Infix expression
+string preToInfix(string pre_exp) {
+stack<string> s;
+
+// length of expression
+int length = pre_exp.size();
+
+// reading from right to left
+for (int i = length - 1; i >= 0; i--) {
+
+	// check if symbol is operator
+	if (isOperator(pre_exp[i])) {
+
+	// pop two operands from stack
+	string op1 = s.top(); s.pop();
+	string op2 = s.top(); s.pop();
+
+	// concat the operands and operator
+	string temp = "(" + op1 + pre_exp[i] + op2 + ")";
+
+	// Push string temp back to stack
+	s.push(temp);
+	}
+
+	// if symbol is an operand
+	else {
+
+	// push the operand to the stack
+	s.push(string(1, pre_exp[i]));
+	}
+}
+
+// Stack now contains the Infix expression
+return s.top();
+}
+
+// Driver Code
+int main() {
+string pre_exp = "*-A/BC-/AKL";
+cout << "Infix : " << preToInfix(pre_exp);
+return 0;
+}
+
+--------------------------------------------------------------------------------
+
+// AVL
+struct Node {
+  int val;
+  int height;
+  Node* left;
+  Node* right;
+
+  Node(int v, Node* l = nullptr, Node* r = nullptr)
+    : val(v), left(l), right(r), height(0) {}
+};
+
+int height(Node* n) {
+  return n ? n->height : -1;
+}
+
+void updateHeight(Node* n) {
+  n->height = max(height(n->left), height(n->right)) + 1;
+}
+
+// Left-left rotation
+Node* rotateLeftLeft(Node* n) {
+  Node* tmp = n->left;
+  n->left = tmp->right;
+  tmp->right = n;
+
+  updateHeight(n);
+  updateHeight(tmp);
+
+  return tmp;
+}
+
+// Right-right rotation
+Node* rotateRightRight(Node* n) {
+  Node* tmp = n->right;
+  n->right = tmp->left;
+  tmp->left = n;
+
+  updateHeight(n);
+  updateHeight(tmp);
+
+  return tmp;
+}
+
+// Left-right rotation
+Node* rotateLeftRight(Node* n) {
+  n->left = rotateRightRight(n->left);
+  return rotateLeftLeft(n);
+}
+
+// Right-left rotation
+Node* rotateRightLeft(Node* n) {
+  n->right = rotateLeftLeft(n->right);
+  return rotateRightRight(n);
+}
+
+Node* balance(Node* n) {
+  if (height(n->left) - height(n->right) > 1) {
+    if (height(n->left->left) >= height(n->left->right)) {
+      // Left-left case
+      cout << "Performing left-left rotation on node " << n->val << endl;
+      return rotateLeftLeft(n);
+    } else {
+      // Left-right case
+      cout << "Performing left-right rotation on node " << n->val << endl;
+      return rotateLeftRight(n);
+    }
+  } else if (height(n->right) - height(n->left) > 1) {
+    if (height(n->right->right) >= height(n->right->left)) {
+      // Right-right case
+      cout << "Performing right-right rotation on node " << n->val << endl;
+      return rotateRightRight(n);
+    } else {
+      // Right-left case
+      cout << "Performing right-left rotation on node " << n->val << endl;
+      return rotateRightLeft(n);
+    }
+  } else {
+    // No rotations necessary
+    return n;
+  }
+}
+
+
+
+Node* insert(Node* n, int val) {
+  if (!n) return new Node(val);
+
+  if (val < n->val) {
+    n->left = insert(n->left, val);
+  } else {
+    n->right = insert( n->right, val);
+    }
+
+    updateHeight(n);
+    return balance(n);
+}
+
+--------------------------------------------------------------------------------
+// BFS
+// Program to print BFS traversal from a given
+// source vertex. BFS(int s) traverses vertices
+// reachable from s.
+#include <bits/stdc++.h>
+using namespace std;
+
+// This class represents a directed graph using
+// adjacency list representation
+class Graph {
+	int V; // No. of vertices
+
+	// Pointer to an array containing adjacency
+	// lists
+	vector<list<int> > adj;
+
+public:
+	Graph(int V); // Constructor
+
+	// function to add an edge to graph
+	void addEdge(int v, int w);
+
+	// prints BFS traversal from a given source s
+	void BFS(int s);
+};
+
+Graph::Graph(int V)
+{
+	this->V = V;
+	adj.resize(V);
+}
+
+void Graph::addEdge(int v, int w)
+{
+	adj[v].push_back(w); // Add w to v’s list.
+}
+
+void Graph::BFS(int s)
+{
+	// Mark all the vertices as not visited
+	vector<bool> visited;
+	visited.resize(V, false);
+
+	// Create a queue for BFS
+	list<int> queue;
+
+	// Mark the current node as visited and enqueue it
+	visited[s] = true;
+	queue.push_back(s);
+
+	while (!queue.empty()) {
+		// Dequeue a vertex from queue and print it
+		s = queue.front();
+		cout << s << " ";
+		queue.pop_front();
+
+		// Get all adjacent vertices of the dequeued
+		// vertex s. If a adjacent has not been visited,
+		// then mark it visited and enqueue it
+		for (auto adjecent : adj[s]) {
+			if (!visited[adjecent]) {
+				visited[adjecent] = true;
+				queue.push_back(adjecent);
+			}
+		}
+	}
+}
+
+// Driver program to test methods of graph class
+int main()
+{
+	// Create a graph given in the above diagram
+	Graph g(4);
+	g.addEdge(0, 1);
+	g.addEdge(0, 2);
+	g.addEdge(1, 2);
+	g.addEdge(2, 0);
+	g.addEdge(2, 3);
+	g.addEdge(3, 3);
+
+	cout << "Following is Breadth First Traversal "
+		<< "(starting from vertex 2) \n";
+	g.BFS(2);
+
+	return 0;
+}
+
+
+--------------------------------------------------------------------------------
+
+// DFS
+// C++ program to print DFS traversal from
+// a given vertex in a given graph
+#include <bits/stdc++.h>
+using namespace std;
+
+// Graph class represents a directed graph
+// using adjacency list representation
+class Graph {
+public:
+	map<int, bool> visited;
+	map<int, list<int> > adj;
+
+	// function to add an edge to graph
+	void addEdge(int v, int w);
+
+	// DFS traversal of the vertices
+	// reachable from v
+	void DFS(int v);
+};
+
+void Graph::addEdge(int v, int w)
+{
+	adj[v].push_back(w); // Add w to v’s list.
+}
+
+void Graph::DFS(int v)
+{
+	// Mark the current node as visited and
+	// print it
+	visited[v] = true;
+	cout << v << " ";
+
+	// Recur for all the vertices adjacent
+	// to this vertex
+	list<int>::iterator i;
+	for (i = adj[v].begin(); i != adj[v].end(); ++i)
+		if (!visited[*i])
+			DFS(*i);
+}
+
+// Driver's code
+int main()
+{
+	// Create a graph given in the above diagram
+	Graph g;
+	g.addEdge(0, 1);
+	g.addEdge(0, 2);
+	g.addEdge(1, 2);
+	g.addEdge(2, 0);
+	g.addEdge(2, 3);
+	g.addEdge(3, 3);
+
+	cout << "Following is Depth First Traversal"
+			" (starting from vertex 2) \n";
+
+	// Function call
+	g.DFS(2);
+
+	return 0;
+}
+
+// improved by Vishnudev C
